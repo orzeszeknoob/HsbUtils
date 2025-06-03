@@ -29,10 +29,8 @@ loom {
         runConfigs {
             getByName("client") {
             programArgs("--mods", devenvMod.resolve().joinToString(",") { it.relativeTo(file("run")).path })
-
-            // Required authentication arguments
-            programArgs("--username", "DevPlayer")  // Can be any username
-            programArgs("--accessToken", "0")       // "0" for offline mode
+            programArgs("--username", "DevPlayer")
+            programArgs("--accessToken", "0")
 
         }
         forge {
@@ -82,7 +80,6 @@ tasks.withType<JavaCompile> {
     targetCompatibility = "1.8"
 }
 
-// 1. Update your dependencies section
 dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
@@ -96,10 +93,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
     implementation("com.google.code.gson:gson:2.8.9")
 
-    // Explicitly include Vigilance in both configurations
     implementation("gg.essential:vigilance:306")
     shadowImplementation("gg.essential:vigilance:306") {
-        exclude(group = "gg.essential.elementa") // Prevent duplicate Elementa
+        exclude(group = "gg.essential.elementa")
     }
 
     implementation("gg.essential:universalcraft-1.8.9-forge") {
