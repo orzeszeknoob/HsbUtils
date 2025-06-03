@@ -5,7 +5,7 @@ import gg.essential.vigilance.data.Property
 import gg.essential.vigilance.data.PropertyType
 import java.io.File
 
-class HsbUtilsConfig : Vigilant(File("config/hsbutils/config.toml"), "Gemstone Mod") {
+class HsbUtilsConfig : Vigilant(File("config/hsbutils/config.toml"), "Hsb Utils") {
     @Property(
         type = PropertyType.SWITCH,
         name = "Enable HOTM Macro",
@@ -47,6 +47,49 @@ class HsbUtilsConfig : Vigilant(File("config/hsbutils/config.toml"), "Gemstone M
         category = "Waypoints"
     )
     var showWaypointLines = true
+
+    @Property(
+        type = PropertyType.TEXT,
+        name = "Player Watch List",
+        description = "Comma-separated list of players to watch for (case insensitive)",
+        category = "Player Detection"
+    )
+    var sigmalist = ""
+
+    @Property(
+        type = PropertyType.TEXT,
+        name = "Detection Title",
+        description = "Title to display when a watched player is detected",
+        category = "Player Detection"
+    )
+    var title = "Player Detected!"
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Fade in time",
+        description = "fade in time of the title",
+        category = "Player Detection",
+        min = 100,
+        max = 200
+    )
+    var fadein = 100
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Display time",
+        description = "display time of the title",
+        category = "Player Detection",
+        min = 250,
+        max = 1000
+    )
+    var displaytime = 500
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Fade out time",
+        description = "fade out time for the title",
+        category = "Player Detection",
+        min = 100,
+        max = 200
+    )
+    var fadeout = 100
 
     init {
         initialize()

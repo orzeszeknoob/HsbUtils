@@ -39,6 +39,9 @@ class HsbUtils {
     private val random = Random()
     private var currentWaypointIndex = -1
     private var currentWaypoints: List<Waypoint>? = null
+    private var tickCounter = 0
+    private val notifiedPlayers = mutableSetOf<String>()
+    private var lastWorldId: Int = -1
 
     companion object {
         lateinit var config: HsbUtilsConfig
@@ -121,6 +124,53 @@ class HsbUtils {
         if (shouldExecuteCommand && Minecraft.getMinecraft().currentScreen == null) {
             shouldExecuteCommand = false
             executeCommand()
+        }
+
+        if (event?.phase == TickEvent.Phase.END) {
+            tickCounter++
+            if (tickCounter % 20 == 0) {
+                val mc = Minecraft.getMinecraft()
+                if (mc.theWorld == null || mc.netHandler == null) return
+
+                if (mc.theWorld.provider.dimensionId != lastWorldId) {
+                    notifiedPlayers.clear()
+                    lastWorldId = mc.theWorld.provider.dimensionId
+                }
+
+                val visiblePlayers = mc.netHandler.playerInfoMap
+                    .mapNotNull { it.gameProfile?.name }
+                    .filter { it.isNotEmpty() }
+
+                if (visiblePlayers.isEmpty()) return
+
+                val listedNames = config.sigmalist
+                    .split(",")
+                    .map { it.trim().lowercase() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
+
+                if (listedNames.isEmpty()) return
+
+                val matchedPlayers = visiblePlayers.filter { 
+                    val name = it.lowercase()
+                    name in listedNames && name !in notifiedPlayers
+                }
+
+                if (matchedPlayers.isNotEmpty()) {
+                    matchedPlayers.forEach { player ->
+                        notifiedPlayers.add(player.lowercase())
+                    }
+                    mc.ingameGUI.displayTitle(
+                        config.title,
+                        "Detected: ${matchedPlayers.joinToString(", ")}",
+                        config.fadein, config.displaytime, config.fadeout
+                    )
+                }
+
+                notifiedPlayers.removeAll { player ->
+                    !visiblePlayers.any { it.lowercase() == player }
+                }
+            }
         }
     }
 

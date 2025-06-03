@@ -142,6 +142,7 @@ tasks.shadowJar {
     archiveClassifier.set("all-dev")
     configurations = listOf(shadowImplementation, shadowModImpl)
 
+
     exclude("META-INF/versions/9/**")
     exclude("META-INF/maven/**")
     exclude("META-INF/services/**")
