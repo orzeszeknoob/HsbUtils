@@ -12,6 +12,7 @@ bin/
 *.iws
 *.ipr
 out/
+.vsc/
 
 # === Gradle ===
 .gradle/
