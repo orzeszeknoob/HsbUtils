@@ -1,0 +1,5 @@
+[versions]
+libautoupdate = "1.0.3"
+
+[libraries]
+libautoupdate = { module = "moe.nea:libautoupdate", version.ref = "libautoupdate" }
