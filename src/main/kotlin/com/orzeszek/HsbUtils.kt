@@ -162,7 +162,7 @@ class HsbUtils {
                     }
                     mc.ingameGUI.displayTitle(
                         config.title,
-                        "Detected: ${matchedPlayers.joinToString(", ")}",
+                        "§eDetected: §f${matchedPlayers.joinToString(", ")}",
                         config.fadein, config.displaytime, config.fadeout
                     )
                 }
