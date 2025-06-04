@@ -6,7 +6,8 @@ A Minecraft mod that adds various utilities around the game
 ## Features
 
 - Gemstone waypoints based on the pristine proc you get just place a txt file of cw waypoints named the gemstone name in the config folder
-- 
+- Player detection from a list for idk what my friends asked
+- /hotm macro for when spawn/leave shaft
 
 ## Installation
 
