@@ -161,8 +161,8 @@ class HsbUtils {
                         notifiedPlayers.add(player.lowercase())
                     }
                     mc.ingameGUI.displayTitle(
-                        config.title,
-                        "§eDetected: §f${matchedPlayers.joinToString(", ")}",
+                        "${config.title}, ${matchedPlayers.joinToString(",")}",
+                        "",
                         config.fadein, config.displaytime, config.fadeout
                     )
                 }
