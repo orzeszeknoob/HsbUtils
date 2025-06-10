@@ -1,13 +1,13 @@
 [
 {
   "modid": "hsbutils",
-  "name": "Gemstone Mod",
-  "description": "A mod that helps with mineshaft mining in Hypixel Skyblock",
-  "version": "1.0.1",
-  "mcversion": "1.8.9",
+  "name": "HSB Utils",
+  "description": "A utility mod for Hypixel Skyblock",
+  "version": "${version}",
+  "mcversion": "1.21.5",
   "url": "",
   "updateUrl": "",
-  "authorList": ["orzeszek"],
+  "authorList": ["Orzeszek"],
   "credits": "",
   "logoFile": "",
   "screenshots": [],

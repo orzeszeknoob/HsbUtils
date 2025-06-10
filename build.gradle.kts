@@ -4,9 +4,9 @@ import net.fabricmc.loom.task.RemapJarTask
 plugins {
     idea
     java
-    kotlin("jvm") version "1.9.0"
-    id("dev.architectury.architectury-pack200") version "0.1.3"
-    id("gg.essential.loom") version "1.3.12"
+    kotlin("jvm") version "2.1.21"
+    id("fabric-loom") version "1.10.1"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.21"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -16,7 +16,8 @@ val mcVersion: String by project
 val version: String by project
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    withSourcesJar()
 }
 
 val devenvMod: Configuration by configurations.creating {
@@ -25,16 +26,11 @@ val devenvMod: Configuration by configurations.creating {
 }
 
 loom {
-    silentMojangMappingsLicense()
-        runConfigs {
-            getByName("client") {
+    runConfigs {
+        getByName("client") {
             programArgs("--mods", devenvMod.resolve().joinToString(",") { it.relativeTo(file("run")).path })
             programArgs("--username", "DevPlayer")
             programArgs("--accessToken", "0")
-
-        }
-        forge {
-            pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
         }
     }
 }
@@ -55,14 +51,10 @@ kotlin {
 }
 
 repositories {
-    maven("https://maven.minecraftforge.net/")
-    maven("https://repo.spongepowered.org/maven/")
-    maven("https://repo.nea.moe/releases")
-    maven("https://maven.notenoughupdates.org/releases")
-    maven("https://repo.essential.gg/repository/maven-public/")
-    maven("https://jitpack.io")
+    maven("https://maven.fabricmc.net/")
+    maven("https://maven.shedaniel.me/")
+    maven("https://maven.terraformersmc.com/")
     mavenCentral()
-    mavenLocal()
 }
 
 val shadowImplementation: Configuration by configurations.creating {
@@ -76,31 +68,27 @@ val shadowModImpl: Configuration by configurations.creating {
 }
 
 tasks.withType<JavaCompile> {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.8.9")
-    mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
-    forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
-
+    minecraft("com.mojang:minecraft:1.21.5")
+    mappings("net.fabricmc:yarn:1.21.5+build.1")
+    modImplementation("net.fabricmc:fabric-loader:0.16.10")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.126.0+1.21.5")
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.13.3+kotlin.2.1.21")
+    
+    // Cloth Config for configuration
+    modApi("me.shedaniel.cloth:cloth-config-fabric:18.0.145") {
+        exclude(group = "net.fabricmc.fabric-api")
+    }
+    
+    // Kotlin dependencies
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-    implementation(libs.libautoupdate)
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
-    implementation("com.google.code.gson:gson:2.8.9")
-
-    implementation("gg.essential:vigilance:306")
-    shadowImplementation("gg.essential:vigilance:306") {
-        exclude(group = "gg.essential.elementa")
-    }
-
-    implementation("gg.essential:universalcraft-1.8.9-forge") {
-        version { strictly("[401,)") }
-    }
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 tasks.compileJava {
@@ -125,44 +113,37 @@ tasks.processResources {
     inputs.property("mcversion", mcVersion)
     inputs.property("modid", modid)
 
+    filesMatching("fabric.mod.json") {
+        expand(
+            "version" to project.version,
+            "mcversion" to mcVersion,
+            "modid" to modid
+        )
+    }
 
     rename("(.+_at.cfg)", "META-INF/$1")
 }
 
-
-val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
-    archiveClassifier.set("")
-    from(tasks.shadowJar)
-    input.set(tasks.shadowJar.get().archiveFile)
-    archiveFileName.set("$modid-${project.version}.jar")
-}
-
 tasks.shadowJar {
-    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
     archiveClassifier.set("all-dev")
     configurations = listOf(shadowImplementation, shadowModImpl)
-
 
     exclude("META-INF/versions/9/**")
     exclude("META-INF/maven/**")
     exclude("META-INF/services/**")
 
-    relocate("gg.essential.vigilance", "$baseGroup.deps.vigilance") {
-        include("gg.essential.vigilance.**")
-    }
-    relocate("gg.essential.elementa", "$baseGroup.deps.elementa")
-    relocate("io.github.moulberry.moulconfig", "$baseGroup.deps.moulconfig")
-    relocate("moe.nea.libautoupdate", "$baseGroup.deps.libautoupdate")
-    relocate("gg.essential.universalcraft", "$baseGroup.deps.universalcraft")
-
     mergeServiceFiles()
+}
 
-    exclude("gg/essential/loader/**")
+tasks.remapJar {
+    archiveClassifier.set("")
+    inputFile.set(tasks.shadowJar.get().archiveFile)
+    archiveFileName.set("$modid-${project.version}.jar")
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "21"
 }
